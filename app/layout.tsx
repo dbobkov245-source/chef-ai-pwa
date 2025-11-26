@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata, Viewport } from "next";
-import "./globals.css";
+import "./main.css";
 import AuthProvider from "../components/AuthProvider";
 
 export const metadata: Metadata = {
