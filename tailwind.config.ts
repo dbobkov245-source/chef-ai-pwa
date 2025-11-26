@@ -32,7 +32,7 @@ const config: Config = {
       },
       fontFamily: {
         // Google Font: Space Grotesk
-        sans: ["Space Grotesk", "sans-serif"], 
+        sans: ["Space Grotesk", "sans-serif"],
         display: ["Space Grotesk", "sans-serif"],
       },
       borderRadius: {
@@ -52,8 +52,6 @@ const config: Config = {
       }
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-  ],
+  plugins: [],
 };
 export default config;
