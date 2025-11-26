@@ -1,0 +1,7 @@
+{
+  "name": "Шеф ИИ (Chef AI)",
+  "description": "Smart cooking assistant for photo analysis and fusion recipes.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

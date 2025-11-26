@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-rgb: 246, 248, 246;
+}
+
+body {
+  background-color: rgb(var(--background-rgb));
+}
+
+/* Hide Scrollbar but keep functionality for horizontal carousels */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
