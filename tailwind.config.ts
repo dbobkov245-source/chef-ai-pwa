@@ -14,7 +14,7 @@ const config: Config = {
         primary: "#13ec5b", // Neon Green
         "primary-dark": "#0fb845",
         background: {
-          light: "#F6F8F6", // Minty White
+          light: "#F2F9F5", // Light Mint (Updated)
           dark: "#102216",  // Deep Green/Black
         },
         surface: {
@@ -22,12 +22,13 @@ const config: Config = {
           dark: "#182E21",
         },
         text: {
-          main: "#102216",
-          secondary: "#71717A",
+          main: "#0D1F2D", // Dark Blue/Green (Updated)
+          secondary: "#5A6B7C", // Muted Blue/Gray
         },
         // Accent for scanner circle
         cyan: {
-          soft: "#A8DADC",
+          soft: "#A3D8D8", // Soft Teal (Updated)
+          dark: "#1A3C40", // Dark Teal for icons
         }
       },
       fontFamily: {
