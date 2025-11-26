@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 // MOCK DATABASE (In-memory store)
 // In a real app, this would be MongoDB, Postgres, etc.
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   }
 
   const recipe = await req.json();
-  
+
   // Initialize user storage if not exists
   if (!MOCK_DB[session.user.email]) {
     MOCK_DB[session.user.email] = [];
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Check if already exists (simple check by title for demo)
   const exists = MOCK_DB[session.user.email].some((r) => r.title === recipe.title);
-  
+
   if (!exists) {
     // Add ID and Timestamp if missing
     const newRecipe = {
@@ -64,7 +64,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const index = MOCK_DB[email].findIndex(r => r.id === updatedRecipe.id);
-  
+
   if (index !== -1) {
     // Merge updates
     MOCK_DB[email][index] = { ...MOCK_DB[email][index], ...updatedRecipe };
