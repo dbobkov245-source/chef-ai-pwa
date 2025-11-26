@@ -56,7 +56,7 @@ export default function Home() {
       </main>
 
       {/* Bottom Navigation (Floating on Mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-cyan-soft/20 px-6 py-4 flex justify-around md:hidden z-30 safe-area-pb">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-cyan-soft/20 px-6 py-4 flex justify-around z-30 safe-area-pb">
         <button
           onClick={() => setMode(AppMode.PHOTO_ANALYSIS)}
           className={`flex flex-col items-center gap-1 transition-all duration-300 ${mode === AppMode.PHOTO_ANALYSIS ? 'text-text-main scale-110' : 'text-text-secondary hover:text-text-main'}`}
