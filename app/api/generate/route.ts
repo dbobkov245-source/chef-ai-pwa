@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 // Initialize Gemini on the server side
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+const ai = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 // Schema Definition
-const recipeSchema = {
-  type: Type.OBJECT,
+const recipeSchema: any = {
+  type: SchemaType.OBJECT,
   properties: {
-    title: { type: Type.STRING, description: "Название рецепта на русском языке" },
-    description: { type: Type.STRING, description: "Краткое описание блюда на русском" },
-    ingredients: { 
-      type: Type.ARRAY, 
-      items: { type: Type.STRING },
-      description: "Список ингредиентов с количеством" 
+    title: { type: SchemaType.STRING, description: "Название рецепта на русском языке" },
+    description: { type: SchemaType.STRING, description: "Краткое описание блюда на русском" },
+    ingredients: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description: "Список ингредиентов с количеством"
     },
-    instructions: { 
-      type: Type.ARRAY, 
-      items: { type: Type.STRING },
-      description: "Пошаговая инструкция приготовления" 
+    instructions: {
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
+      description: "Пошаговая инструкция приготовления"
     },
-    cookingTime: { type: Type.STRING, description: "Время приготовления (например, '30 минут')" },
-    difficulty: { type: Type.STRING, description: "Сложность (Легко, Средне, Сложно)" },
-    calories: { type: Type.STRING, description: "Примерная калорийность на порцию" }
+    cookingTime: { type: SchemaType.STRING, description: "Время приготовления (например, '30 минут')" },
+    difficulty: { type: SchemaType.STRING, description: "Сложность (Легко, Средне, Сложно)" },
+    calories: { type: SchemaType.STRING, description: "Примерная калорийность на порцию" }
   },
   required: ["title", "description", "ingredients", "instructions", "cookingTime", "difficulty"],
 };
@@ -40,14 +40,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { mode, image, mimeType, cuisine1, cuisine2, creativity } = body;
 
-    let model = "gemini-2.5-flash";
     let promptParts: any[] = [];
 
     if (mode === 'PHOTO_ANALYSIS') {
       if (!image) {
         return NextResponse.json({ error: "Image data is required" }, { status: 400 });
       }
-      
+
       promptParts = [
         {
           inlineData: {
@@ -72,22 +71,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid mode" }, { status: 400 });
     }
 
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: { parts: promptParts },
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+    const model = ai.getGenerativeModel({
+      model: "gemini-2.0-flash-exp",
+      systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: recipeSchema,
         temperature: mode === 'FUSION_LAB' ? 0.7 + (Number(creativity) / 20) : 0.4,
       },
     });
 
-    if (!response.text) {
+    const response = await model.generateContent({
+      contents: [{ role: "user", parts: promptParts }],
+    });
+
+    const responseText = response.response.text();
+    if (!responseText) {
       throw new Error("Empty response from AI");
     }
 
-    const recipeData = JSON.parse(response.text);
+    const recipeData = JSON.parse(responseText);
     return NextResponse.json(recipeData);
 
   } catch (error) {
