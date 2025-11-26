@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "../components/AuthProvider";
 
@@ -7,7 +7,16 @@ export const metadata: Metadata = {
   title: "Шеф ИИ (Chef AI)",
   description: "Умный кулинарный помощник для анализа блюд и создания рецептов.",
   manifest: "/manifest.json",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  icons: {
+    icon: "/icon.png", // Ensure you have an icon or remove this line
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: "#13ec5b",
 };
 
@@ -19,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="ru" className="light">
       <head>
-        {/* Space Grotesk Font */}
+        {/* Space Grotesk Font from Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
