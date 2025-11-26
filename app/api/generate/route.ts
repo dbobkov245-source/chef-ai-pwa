@@ -35,6 +35,14 @@ Return the response strictly as a JSON object matching the provided schema.
 Do not wrap the JSON in markdown code blocks.
 `;
 
+const MODEL_PRIORITY = [
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-flash-latest',
+  'gemini-1.5-flash',
+  'gemini-pro'
+];
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -71,27 +79,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid mode" }, { status: 400 });
     }
 
-    const model = ai.getGenerativeModel({
-      model: "gemini-1.5-flash-latest",
-      systemInstruction: SYSTEM_INSTRUCTION,
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: recipeSchema,
-        temperature: mode === 'FUSION_LAB' ? 0.7 + (Number(creativity) / 20) : 0.4,
-      },
-    });
+    let lastError = null;
 
-    const response = await model.generateContent({
-      contents: [{ role: "user", parts: promptParts }],
-    });
+    for (const modelName of MODEL_PRIORITY) {
+      try {
+        console.log(`Attempting to generate with model: ${modelName}`);
+        const model = ai.getGenerativeModel({
+          model: modelName,
+          systemInstruction: SYSTEM_INSTRUCTION,
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: recipeSchema,
+            temperature: mode === 'FUSION_LAB' ? 0.7 + (Number(creativity) / 20) : 0.4,
+          },
+        });
 
-    const responseText = response.response.text();
-    if (!responseText) {
-      throw new Error("Empty response from AI");
+        const response = await model.generateContent({
+          contents: [{ role: "user", parts: promptParts }],
+        });
+
+        const responseText = response.response.text();
+        if (!responseText) {
+          throw new Error("Empty response from AI");
+        }
+
+        const recipeData = JSON.parse(responseText);
+        return NextResponse.json(recipeData);
+
+      } catch (error: any) {
+        console.warn(`Failed with model ${modelName}:`, error.message);
+        lastError = error;
+        // Continue to next model
+      }
     }
 
-    const recipeData = JSON.parse(responseText);
-    return NextResponse.json(recipeData);
+    // If we get here, all models failed
+    console.error("All models failed. Last error:", lastError);
+    return NextResponse.json(
+      { error: "Failed to generate content with all available models", details: lastError?.message },
+      { status: 500 }
+    );
 
   } catch (error) {
     console.error("Gemini API Error:", error);
