@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     const model = ai.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-1.5-flash",
       systemInstruction: SYSTEM_INSTRUCTION,
       generationConfig: {
         responseMimeType: "application/json",
