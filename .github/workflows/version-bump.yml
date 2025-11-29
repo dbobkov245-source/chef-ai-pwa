@@ -1,0 +1,77 @@
+name: Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+    
+    - name: Bump version
+      run: |
+        npm version ${{ github.event.inputs.version_type }} -m "chore: bump version to %s"
+        NEW_VERSION=$(node -p "require('./package.json').version")
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+    
+    - name: Update manifest.json if exists
+      run: |
+        if [ -f "public/manifest.json" ]; then
+          node -e "
+          const fs = require('fs');
+          const manifest = JSON.parse(fs.readFileSync('public/manifest.json', 'utf8'));
+          manifest.version = process.env.NEW_VERSION;
+          fs.writeFileSync('public/manifest.json', JSON.stringify(manifest, null, 2));
+          console.log('✅ Updated manifest.json to version', process.env.NEW_VERSION);
+          "
+          git add public/manifest.json
+          git commit -m "chore: update manifest version to $NEW_VERSION" || true
+        fi
+    
+    - name: Push changes
+      run: |
+        git push
+        git push --tags
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.NEW_VERSION }}
+        release_name: Release v${{ env.NEW_VERSION }}
+        body: |
+          ## What's Changed
+          Version bump: ${{ github.event.inputs.version_type }}
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/commits/v${{ env.NEW_VERSION }}
+        draft: false
+        prerelease: false

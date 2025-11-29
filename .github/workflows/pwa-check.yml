@@ -1,0 +1,83 @@
+name: PWA Validation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'public/manifest.json'
+      - 'public/sw.js'
+      - 'next.config.mjs'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'public/manifest.json'
+      - 'public/sw.js'
+      - 'next.config.mjs'
+
+jobs:
+  validate-pwa:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build project
+      run: npm run build
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        NEXTAUTH_URL: http://localhost:3000
+        NEXTAUTH_SECRET: test-secret-for-ci
+    
+    - name: Check manifest.json exists
+      run: |
+        if [ ! -f "public/manifest.json" ]; then
+          echo "❌ manifest.json not found"
+          exit 1
+        fi
+        echo "✅ manifest.json found"
+    
+    - name: Validate manifest.json
+      run: |
+        node -e "
+        const fs = require('fs');
+        const manifest = JSON.parse(fs.readFileSync('public/manifest.json', 'utf8'));
+        
+        const required = ['name', 'short_name', 'start_url', 'display', 'icons'];
+        const missing = required.filter(field => !manifest[field]);
+        
+        if (missing.length > 0) {
+          console.error('❌ Missing required fields:', missing.join(', '));
+          process.exit(1);
+        }
+        
+        if (!manifest.icons || manifest.icons.length === 0) {
+          console.error('❌ No icons defined in manifest');
+          process.exit(1);
+        }
+        
+        console.log('✅ Manifest validation passed');
+        console.log('   Name:', manifest.name);
+        console.log('   Icons:', manifest.icons.length);
+        "
+    
+    - name: Check service worker
+      run: |
+        if [ ! -f "public/sw.js" ]; then
+          echo "⚠️ sw.js not found (may be generated at build time)"
+        else
+          echo "✅ Service worker found"
+        fi
+    
+    - name: Summary
+      run: |
+        echo "🎉 PWA validation completed successfully!"
