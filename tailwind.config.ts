@@ -33,8 +33,8 @@ const config: Config = {
       },
       fontFamily: {
         // Google Font: Space Grotesk
-        sans: ["Space Grotesk", "sans-serif"],
-        display: ["Space Grotesk", "sans-serif"],
+        sans: ["var(--font-space-grotesk)", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "sans-serif"],
       },
       borderRadius: {
         'xl': '1rem',

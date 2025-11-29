@@ -3,6 +3,14 @@ import type { Metadata, Viewport } from "next";
 import "./main.css";
 import AuthProvider from "../components/AuthProvider";
 
+import { Space_Grotesk } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-space-grotesk",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://chef-ai-pwa.vercel.app'),
   title: "Шеф ИИ",
@@ -66,15 +74,10 @@ export default function RootLayout({
   return (
     <html lang="ru" className="light">
       <head>
-        {/* Space Grotesk Font from Google Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
-
         {/* Service Worker Registration */}
         <script src="/sw-loader.js" defer />
       </head>
-      <body className="bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col">
+      <body className={`${spaceGrotesk.variable} bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col`}>
         <AuthProvider>
           {children}
         </AuthProvider>
