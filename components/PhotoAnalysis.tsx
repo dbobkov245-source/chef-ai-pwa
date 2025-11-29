@@ -96,8 +96,9 @@ const PhotoAnalysis: React.FC = () => {
 
         {/* Main Button / Preview */}
         <button
-          onClick={() => cameraInputRef.current?.click()}
-          className="relative group w-72 h-72 rounded-full overflow-hidden shadow-2xl shadow-cyan-soft/30 transition-transform active:scale-95 focus:outline-none z-10 bg-cyan-soft flex items-center justify-center"
+          onClick={() => image ? handleAnalyze() : cameraInputRef.current?.click()}
+          disabled={loading}
+          className="relative group w-72 h-72 rounded-full overflow-hidden shadow-2xl shadow-cyan-soft/30 transition-transform active:scale-95 focus:outline-none z-10 bg-cyan-soft flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {image ? (
             <div className="w-full h-full relative">
@@ -167,15 +168,7 @@ const PhotoAnalysis: React.FC = () => {
       )}
 
       {/* Action Button (Confirm) */}
-      {image && !loading && (
-        <button
-          onClick={handleAnalyze}
-          className="w-full max-w-xs bg-primary text-text-main font-bold py-4 rounded-2xl shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all active:scale-95 flex items-center justify-center gap-2 mb-8"
-        >
-          <UtensilsCrossed size={24} />
-          Распознать рецепт
-        </button>
-      )}
+      {/* Removed - main button now handles analyze */}
 
       {/* Recent Findings Placeholder */}
       <div className="w-full max-w-md mt-auto">
