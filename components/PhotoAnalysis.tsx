@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { generateRecipeFromPhoto } from '../services/geminiService';
 import { Recipe } from '../types';
 import RecipeCard from './RecipeCard';
@@ -9,10 +9,13 @@ import {
   RefreshCcw,
   Sparkles,
   UtensilsCrossed,
-  History
+  History,
+  ExternalLink,
+  AlertCircle
 } from 'lucide-react';
 
 const PhotoAnalysis: React.FC = () => {
+  const [isTelegramWebView, setIsTelegramWebView] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -75,6 +78,19 @@ const PhotoAnalysis: React.FC = () => {
     }
   };
 
+  // Detect Telegram WebView
+  useEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isTelegram = userAgent.includes('Telegram');
+    setIsTelegramWebView(isTelegram);
+  }, []);
+
+  const openInBrowser = () => {
+    const url = window.location.href;
+    // Try to open in default browser
+    window.open(url, '_system');
+  };
+
   const handleAnalyze = async () => {
     if (!image) return;
 
@@ -127,6 +143,28 @@ const PhotoAnalysis: React.FC = () => {
           Наведите камеру на ингредиенты или блюдо, чтобы найти рецепты.
         </p>
       </div>
+
+      {/* Telegram WebView Warning */}
+      {isTelegramWebView && (
+        <div className="w-full max-w-md mb-6 bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 animate-fade-in-up">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={24} />
+            <div className="flex-1">
+              <h3 className="font-bold text-amber-900 mb-1">Доступ к камере ограничен</h3>
+              <p className="text-sm text-amber-800 mb-3">
+                Telegram не позволяет использовать камеру. Откройте сайт в браузере (Safari, Chrome) для полного доступа.
+              </p>
+              <button
+                onClick={openInBrowser}
+                className="flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-amber-700 transition-colors"
+              >
+                <ExternalLink size={16} />
+                Открыть в браузере
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Scanner Interaction */}
       <div className="relative flex flex-col items-center justify-center mb-10 w-full">
