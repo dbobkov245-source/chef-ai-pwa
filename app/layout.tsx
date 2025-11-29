@@ -2,7 +2,6 @@ import React from 'react';
 import type { Metadata, Viewport } from "next";
 import "./main.css";
 import AuthProvider from "../components/AuthProvider";
-import ServiceWorkerRegistration from "../components/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
   title: "Шеф ИИ",
@@ -67,9 +66,23 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+        {/* Service Worker Registration - Inline for PWABuilder detection */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  console.log('SW registered: ', registration);
+                }).catch(function(error) {
+                  console.log('SW registration failed: ', error);
+                });
+              });
+            }
+          `
+        }} />
       </head>
       <body className="bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col">
-        <ServiceWorkerRegistration />
         <AuthProvider>
           {children}
         </AuthProvider>
