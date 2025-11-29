@@ -135,7 +135,7 @@ const PhotoAnalysis: React.FC = () => {
 
         {/* Main Button / Preview */}
         <button
-          onClick={() => image ? handleAnalyze() : cameraInputRef.current?.click()}
+          onClick={() => image ? handleAnalyze() : galleryInputRef.current?.click()}
           disabled={loading}
           className="relative group w-72 h-72 rounded-full overflow-hidden shadow-2xl shadow-cyan-soft/30 transition-transform active:scale-95 focus:outline-none z-10 bg-cyan-soft flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
         >
@@ -155,8 +155,8 @@ const PhotoAnalysis: React.FC = () => {
             </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-text-main hover:bg-cyan-soft/90 transition-colors gap-4">
-              <Camera size={64} className="text-text-main" strokeWidth={2} />
-              <span className="text-lg font-bold text-text-main block">Нажмите для скана</span>
+              <ImageIcon size={64} className="text-text-main" strokeWidth={2} />
+              <span className="text-lg font-bold text-text-main block">Выбрать фото</span>
             </div>
           )}
         </button>
@@ -175,6 +175,7 @@ const PhotoAnalysis: React.FC = () => {
           type="file"
           accept="image/*"
           capture="environment"
+          multiple={false}
           onChange={handleFileChange}
           className="hidden"
         />
@@ -183,18 +184,18 @@ const PhotoAnalysis: React.FC = () => {
       {/* Secondary Actions */}
       {!image && (
         <div className="flex items-center gap-16 mb-12">
+          <button onClick={() => cameraInputRef.current?.click()} className="flex flex-col items-center gap-2 group w-20">
+            <div className="size-16 bg-cyan-soft/20 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
+              <Camera size={28} className="text-text-main" />
+            </div>
+            <span className="text-sm font-medium text-text-main">Камера</span>
+          </button>
+
           <button onClick={() => galleryInputRef.current?.click()} className="flex flex-col items-center gap-2 group w-20">
             <div className="size-16 bg-cyan-soft/20 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
               <ImageIcon size={28} className="text-text-main" />
             </div>
             <span className="text-sm font-medium text-text-main">Галерея</span>
-          </button>
-
-          <button onClick={() => cameraInputRef.current?.click()} className="flex flex-col items-center gap-2 group w-20">
-            <div className="size-16 bg-cyan-soft/20 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
-              <RefreshCcw size={28} className="text-text-main" />
-            </div>
-            <span className="text-sm font-medium text-text-main">Переключить</span>
           </button>
         </div>
       )}
