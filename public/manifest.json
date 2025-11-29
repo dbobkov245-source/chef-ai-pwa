@@ -1,0 +1,88 @@
+{
+    "name": "Шеф ИИ",
+    "short_name": "Шеф ИИ",
+    "description": "Умный кулинарный помощник для анализа блюд и создания рецептов",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#13ec5b",
+    "orientation": "portrait",
+    "categories": [
+        "food",
+        "lifestyle",
+        "productivity"
+    ],
+    "lang": "ru",
+    "dir": "ltr",
+    "icons": [
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Скан фото",
+            "short_name": "Сканировать",
+            "description": "Распознать ингредиенты на фото",
+            "url": "/?mode=photo",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "Fusion Lab",
+            "short_name": "Fusion",
+            "description": "Создать фьюжн рецепт",
+            "url": "/?mode=fusion",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/screenshot-mobile.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Главный экран - Сканирование фото"
+        },
+        {
+            "src": "/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Главный экран - Desktop версия"
+        }
+    ]
+}
