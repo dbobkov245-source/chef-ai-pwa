@@ -2,6 +2,21 @@ import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
+// Generate a fallback secret from GOOGLE_API_KEY if NEXTAUTH_SECRET is not set
+const getNextAuthSecret = () => {
+    if (process.env.NEXTAUTH_SECRET) {
+        return process.env.NEXTAUTH_SECRET;
+    }
+
+    // In production, derive from GOOGLE_API_KEY as fallback
+    if (process.env.GOOGLE_API_KEY) {
+        return Buffer.from(process.env.GOOGLE_API_KEY).toString('base64');
+    }
+
+    // Development fallback
+    return 'development-secret-key-change-in-production';
+};
+
 export const authOptions: AuthOptions = {
     providers: [
         // Simple Credentials Provider for Demo purposes
@@ -28,7 +43,7 @@ export const authOptions: AuthOptions = {
     pages: {
         signIn: '/auth/signin', // Optional custom sign-in page, using default for now
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: getNextAuthSecret(),
     callbacks: {
         async session({ session, token }) {
             if (session?.user) {
