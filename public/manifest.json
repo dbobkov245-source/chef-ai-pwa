@@ -2,7 +2,7 @@
     "name": "Шеф ИИ",
     "short_name": "Шеф ИИ",
     "description": "Умный кулинарный помощник для анализа блюд и создания рецептов",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
