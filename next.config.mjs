@@ -14,7 +14,10 @@ const nextConfig = {
     // Note: GOOGLE_API_KEY is automatically available on server-side
     // Do NOT add it here publicly if you want to keep it strict, 
     // but Next.js handles process.env.GOOGLE_API_KEY fine in API routes.
-  }
+  },
+  experimental: {
+    optimizeCss: true,
+  },
 };
 
 export default nextConfig;
