@@ -4,6 +4,7 @@ import "./main.css";
 import AuthProvider from "../components/AuthProvider";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://chef-ai-pwa.vercel.app'),
   title: "Шеф ИИ",
   description: "Умный кулинарный помощник для анализа блюд и создания рецептов.",
   manifest: "/manifest.json",
@@ -67,20 +68,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
-        {/* Service Worker Registration - Inline for PWABuilder detection */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                  console.log('SW registered: ', registration);
-                }).catch(function(error) {
-                  console.log('SW registration failed: ', error);
-                });
-              });
-            }
-          `
-        }} />
+        {/* Service Worker Registration */}
+        <script src="/sw-loader.js" defer />
       </head>
       <body className="bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col">
         <AuthProvider>
