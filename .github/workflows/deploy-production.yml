@@ -1,8 +1,11 @@
 name: Deploy to Production
 
+# This workflow is disabled by default and can only be triggered manually
+# To enable auto-deploy on push, uncomment the 'push:' section below
+
 on:
-  push:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
   workflow_dispatch:
 
 jobs:
