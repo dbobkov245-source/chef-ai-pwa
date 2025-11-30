@@ -5,8 +5,8 @@ const RUNTIME_CACHE = 'chef-ai-runtime-v1';
 const STATIC_ASSETS = [
     '/',
     '/manifest.json',
-    '/icon-192.jpg',
-    '/icon-512.jpg',
+    '/icon-192.png',
+    '/icon-512.png',
     '/apple-touch-icon.jpg'
 ];
 
