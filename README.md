@@ -1,33 +1,59 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Шеф ИИ (Chef AI)
 
-# Chef AI PWA 👨‍🍳
+[![CI PWA Check](https://github.com/dbobkov245/chef-ai-pwa/actions/workflows/pwa-check.yml/badge.svg)](https://github.com/dbobkov245/chef-ai-pwa/actions/workflows/pwa-check.yml)
 
-[![CI](https://github.com/dbobkov245-source/chef-ai-pwa/actions/workflows/ci.yml/badge.svg)](https://github.com/dbobkov245-source/chef-ai-pwa/actions/workflows/ci.yml)
-[![PWA Check](https://github.com/dbobkov245-source/chef-ai-pwa/actions/workflows/pwa-check.yml/badge.svg)](https://github.com/dbobkov245-source/chef-ai-pwa/actions/workflows/pwa-check.yml)
+[Посмотреть приложение в AI Studio](https://ai.studio/apps/drive/1ZVRzvhhGf7nWSH6KjCz_gwQsjun1CPvI)
 
-AI-powered recipe generator with Progressive Web App capabilities.
+Умный кулинарный помощник, который использует искусственный интеллект для анализа ингредиентов по фото и создания уникальных рецептов.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1ZVRzvhhGf7nWSH6KjCz_gwQsjun1CPvI
+## Возможности
 
-## Run Locally
+### 📸 Анализ по фото
+Загрузите фотографию имеющихся у вас продуктов, и Шеф ИИ распознает их, предложив возможные блюда, которые можно приготовить.
 
-**Prerequisites:**  Node.js
+### 🧪 Fusion Lab
+Экспериментируйте со вкусами! Создавайте уникальные фьюжн-рецепты, смешивая различные кухни и ингредиенты с помощью мощного ИИ.
 
+### 📖 Коллекция рецептов
+Сохраняйте понравившиеся рецепты в свою личную коллекцию, чтобы всегда иметь к ним быстрый доступ.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Технологии
 
-## 🤖 GitHub Actions Automation
+- **Frontend:** Next.js 14, React, Tailwind CSS
+- **AI:** Google Gemini API
+- **Auth:** NextAuth.js
+- **PWA:** Полная поддержка Progressive Web App (работает офлайн, устанавливается на домашний экран)
+- **Icons:** Lucide React
 
-This project uses GitHub Actions for CI/CD automation:
-- ✅ **Automated testing** on every push
-- ✅ **PWA validation** for manifest and service worker
-- ✅ **Auto-deployment** to Vercel on main branch
-- ✅ **Version management** with automatic releases
+## 🤖 Автоматизация GitHub Actions
 
-📖 See [GitHub Actions Setup Guide](.github/ACTIONS_SETUP.md) for configuration details.
+Этот проект использует GitHub Actions для CI/CD автоматизации:
+
+- ✅ **Автоматическое тестирование** при каждом пуше
+- ✅ **PWA валидация** для манифеста и сервис-воркера
+- ✅ **Авто-деплой на Vercel** из ветки main
+- ✅ **Управление версиями** с автоматическими релизами
+
+📖 Подробнее см. в [GitHub Actions Setup Guide](.github/workflows/README.md) (если есть) или в конфигурационных файлах.
+
+## Установка и запуск
+
+1. Клонируйте репозиторий:
+```bash
+git clone <repository-url>
+```
+
+2. Установите зависимости:
+```bash
+npm install
+```
+
+3. Создайте файл `.env.local` и добавьте необходимые переменные окружения (см. `.env.local.example`).
+   **Важно:** Установите `GEMINI_API_KEY` в `.env.local` с вашим ключом Gemini API.
+
+4. Запустите режим разработки:
+```bash
+npm run dev
+```
+
+Откройте [http://localhost:3000](http://localhost:3000) в вашем браузере.
