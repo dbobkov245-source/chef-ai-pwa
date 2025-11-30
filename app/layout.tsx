@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon-192.jpg", sizes: "192x192", type: "image/jpeg" },
-      { url: "/icon-512.jpg", sizes: "1024x1024", type: "image/jpeg" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       { url: "/apple-touch-icon.jpg", sizes: "180x180", type: "image/jpeg" },
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
     description: "Анализируйте продукты и создавайте уникальные рецепты с помощью искусственного интеллекта",
     images: [
       {
-        url: "/icon-512.jpg",
-        width: 1024,
-        height: 1024,
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
         alt: "Шеф ИИ"
       }
     ]
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Шеф ИИ",
     description: "Умный кулинарный помощник с AI",
-    images: ["/icon-512.jpg"],
+    images: ["/icon-512.png"],
   }
 };
 
