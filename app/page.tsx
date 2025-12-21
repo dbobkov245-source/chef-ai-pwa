@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import PhotoAnalysis from '../components/PhotoAnalysis';
 import FusionLab from '../components/FusionLab';
 import SavedRecipes from '../components/SavedRecipes';
+import ShoppingList from '../components/features/ShoppingList';
 import { AppMode } from '../types';
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useDarkMode } from '../hooks';
+import { useDarkMode, useLocalStorage } from '../hooks';
 import {
   ArrowLeft,
   MoreVertical,
@@ -15,14 +16,25 @@ import {
   BookOpen,
   Moon,
   Sun,
-  LogOut
+  LogOut,
+  ShoppingCart
 } from 'lucide-react';
+
+interface ShoppingItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
 
 export default function Home() {
   const [mode, setMode] = useState<AppMode>(AppMode.PHOTO_ANALYSIS);
   const { data: session } = useSession();
   const [isDarkMode, toggleDarkMode] = useDarkMode();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showShoppingList, setShowShoppingList] = useState(false);
+  const [shoppingItems] = useLocalStorage<ShoppingItem[]>('chef_ai_shopping_list', []);
+
+  const uncheckedCount = shoppingItems.filter(i => !i.checked).length;
 
   const getTitle = () => {
     switch (mode) {
@@ -41,6 +53,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col font-sans text-text-main dark:text-text-main transition-theme">
+      {/* Shopping List Modal */}
+      {showShoppingList && (
+        <ShoppingList onClose={() => setShowShoppingList(false)} />
+      )}
+
       {/* Header */}
       <header className="px-6 py-5 flex items-center justify-between sticky top-0 z-10 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm">
         <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-cyan-soft/20 transition-colors text-text-main">
@@ -50,6 +67,20 @@ export default function Home() {
         <h1 className="text-lg font-bold text-text-main tracking-tight">{getTitle()}</h1>
 
         <div className="flex items-center gap-2">
+          {/* Shopping Cart Button */}
+          <button
+            onClick={() => setShowShoppingList(true)}
+            className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-cyan-soft/20 transition-colors text-text-main"
+            aria-label="Shopping list"
+          >
+            <ShoppingCart size={20} />
+            {uncheckedCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-text-main text-xs font-bold rounded-full flex items-center justify-center">
+                {uncheckedCount > 9 ? '9+' : uncheckedCount}
+              </span>
+            )}
+          </button>
+
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
@@ -122,8 +153,8 @@ export default function Home() {
               key={itemMode}
               onClick={() => setMode(itemMode)}
               className={`flex flex-col items-center gap-1 transition-all duration-300 px-4 py-1 rounded-xl ${isActive
-                  ? 'text-text-main bg-primary/20 scale-105'
-                  : 'text-text-secondary hover:text-text-main'
+                ? 'text-text-main bg-primary/20 scale-105'
+                : 'text-text-secondary hover:text-text-main'
                 }`}
             >
               <Icon
