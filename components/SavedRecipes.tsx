@@ -1,91 +1,125 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import React, { useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { BookOpen, AlertCircle } from 'lucide-react';
-import { Recipe } from '../types';
+import { BookOpen, AlertCircle, Search, X } from 'lucide-react';
+import { useRecipes } from '../hooks';
 import RecipeCard from './RecipeCard';
+import { RecipeCardSkeleton } from './ui/Skeleton';
 
 const SavedRecipes: React.FC = () => {
-  const { data: session, status } = useSession();
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const { recipes, loading, error, removeRecipe, updateRecipe, searchRecipes } = useRecipes();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      setLoading(true);
-      try {
-        if (status === 'authenticated') {
-          // Fetch from API
-          const res = await fetch('/api/user/recipes');
-          if (res.ok) {
-            const data = await res.json();
-            setRecipes(data);
-          }
-        } else {
-          // Fetch from LocalStorage
-          const localData = localStorage.getItem('chef_ai_recipes');
-          if (localData) {
-            setRecipes(JSON.parse(localData));
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load recipes", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Filter recipes based on search
+  const filteredRecipes = useMemo(() => {
+    return searchRecipes(searchQuery);
+  }, [searchRecipes, searchQuery]);
 
-    if (status !== 'loading') {
-      fetchRecipes();
+  const handleRemove = async (id: string) => {
+    try {
+      await removeRecipe(id);
+    } catch (err) {
+      // Error is already handled in the hook
     }
-  }, [status]);
-
-  const handleRemove = (id: string) => {
-    setRecipes(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleUpdate = (updatedRecipe: Recipe) => {
-    setRecipes(prev => prev.map(r => r.id === updatedRecipe.id ? updatedRecipe : r));
+  const handleUpdate = async (updatedRecipe: any) => {
+    try {
+      await updateRecipe(updatedRecipe);
+    } catch (err) {
+      // Error is already handled in the hook
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
-        <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-500">Загружаем вашу коллекцию...</p>
+      <div className="animate-fade-in-up pb-24">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+          <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+        <div className="space-y-6">
+          <RecipeCardSkeleton />
+          <RecipeCardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in-up">
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <BookOpen className="text-orange-600" />
+    <div className="animate-fade-in-up pb-24">
+      {/* Header Card */}
+      <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+        <h2 className="text-xl font-bold text-text-main dark:text-white flex items-center gap-2">
+          <BookOpen className="text-primary" />
           Моя коллекция
         </h2>
-        <p className="text-gray-500 mt-2 text-sm">
-          {session 
-            ? "Ваши рецепты синхронизированы с облаком." 
+        <p className="text-text-secondary dark:text-gray-400 mt-2 text-sm">
+          {session
+            ? "Ваши рецепты синхронизированы с облаком."
             : "Рецепты сохранены только на этом устройстве. Войдите, чтобы сохранить их навсегда."}
         </p>
       </div>
 
+      {/* Search Bar */}
+      {recipes.length > 0 && (
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary" size={20} />
+          <input
+            type="text"
+            placeholder="Поиск рецептов..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-10 py-3 bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 rounded-xl text-text-main dark:text-white placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-main transition-colors"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium">
+          {error}
+        </div>
+      )}
+
+      {/* Empty State */}
       {recipes.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-          <AlertCircle className="mx-auto text-gray-300 mb-3" size={48} />
-          <h3 className="text-lg font-medium text-gray-700">Пока нет сохраненных рецептов</h3>
-          <p className="text-gray-500 text-sm mt-1">Создайте или сфотографируйте блюдо, чтобы добавить его сюда.</p>
+        <div className="text-center py-12 bg-gray-50 dark:bg-surface-dark rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+          <AlertCircle className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={48} />
+          <h3 className="text-lg font-medium text-text-main dark:text-white">Пока нет сохраненных рецептов</h3>
+          <p className="text-text-secondary dark:text-gray-400 text-sm mt-1">
+            Создайте или сфотографируйте блюдо, чтобы добавить его сюда.
+          </p>
+        </div>
+      ) : filteredRecipes.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 dark:bg-surface-dark rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+          <Search className="mx-auto text-gray-300 dark:text-gray-600 mb-3" size={48} />
+          <h3 className="text-lg font-medium text-text-main dark:text-white">Ничего не найдено</h3>
+          <p className="text-text-secondary dark:text-gray-400 text-sm mt-1">
+            Попробуйте изменить поисковый запрос
+          </p>
         </div>
       ) : (
         <div className="space-y-8">
-          {recipes.map((recipe) => (
-            <RecipeCard 
-              key={recipe.id || recipe.title} 
-              recipe={recipe} 
-              isSavedView={true}
-              onRemove={handleRemove}
-              onUpdate={handleUpdate}
-            />
+          {filteredRecipes.map((recipe, index) => (
+            <div key={recipe.id || recipe.title} className="stagger-item">
+              <RecipeCard
+                recipe={recipe}
+                isSavedView={true}
+                onRemove={handleRemove}
+                onUpdate={handleUpdate}
+              />
+            </div>
           ))}
         </div>
       )}

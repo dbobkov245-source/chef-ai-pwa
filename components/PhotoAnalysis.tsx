@@ -1,18 +1,27 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { generateRecipeFromPhoto } from '../services/geminiService';
 import { Recipe } from '../types';
 import RecipeCard from './RecipeCard';
+import { useLocalStorage } from '../hooks';
 import {
   ArrowLeft,
   Camera,
   Image as ImageIcon,
-  RefreshCcw,
   Sparkles,
-  UtensilsCrossed,
   History,
   ExternalLink,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react';
+
+interface ScanHistoryItem {
+  id: string;
+  image: string;
+  timestamp: number;
+  recipeName?: string;
+}
 
 const PhotoAnalysis: React.FC = () => {
   const [isTelegramWebView, setIsTelegramWebView] = useState(false);
@@ -20,8 +29,8 @@ const PhotoAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scanHistory, setScanHistory] = useLocalStorage<ScanHistoryItem[]>('chef_ai_scan_history', []);
 
-  // Refs for different inputs
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +45,6 @@ const PhotoAnalysis: React.FC = () => {
           let width = img.width;
           let height = img.height;
 
-          // Resize if image is too large (max 1200px on longest side)
           const maxSize = 1200;
           if (width > height && width > maxSize) {
             height = (height * maxSize) / width;
@@ -52,7 +60,6 @@ const PhotoAnalysis: React.FC = () => {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
 
-          // Convert to base64 with compression (0.8 quality)
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
           resolve(compressedBase64);
         };
@@ -61,6 +68,28 @@ const PhotoAnalysis: React.FC = () => {
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
+    });
+  };
+
+  // Create thumbnail for history
+  const createThumbnail = (imageData: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = 100;
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext('2d');
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+
+        ctx?.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.6));
+      };
+      img.src = imageData;
     });
   };
 
@@ -78,7 +107,6 @@ const PhotoAnalysis: React.FC = () => {
     }
   };
 
-  // Detect Telegram WebView
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
     const isTelegram = userAgent.includes('Telegram');
@@ -87,7 +115,6 @@ const PhotoAnalysis: React.FC = () => {
 
   const openInBrowser = () => {
     const url = window.location.href;
-    // Try to open in default browser
     window.open(url, '_system');
   };
 
@@ -102,6 +129,17 @@ const PhotoAnalysis: React.FC = () => {
 
       const result = await generateRecipeFromPhoto(base64Data, mimeType);
       setRecipe(result);
+
+      // Save to history
+      const thumbnail = await createThumbnail(image);
+      const historyItem: ScanHistoryItem = {
+        id: crypto.randomUUID(),
+        image: thumbnail,
+        timestamp: Date.now(),
+        recipeName: result.title,
+      };
+      setScanHistory((prev) => [historyItem, ...prev.slice(0, 9)]); // Keep last 10
+
     } catch (err) {
       setError("Не удалось распознать фото. Попробуйте другое изображение.");
     } finally {
@@ -114,6 +152,14 @@ const PhotoAnalysis: React.FC = () => {
     setRecipe(null);
     if (galleryInputRef.current) galleryInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
+  };
+
+  const removeHistoryItem = (id: string) => {
+    setScanHistory((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const clearHistory = () => {
+    setScanHistory([]);
   };
 
   if (recipe) {
@@ -136,22 +182,22 @@ const PhotoAnalysis: React.FC = () => {
 
       {/* Header Info */}
       <div className="text-center mt-4 mb-8 max-w-sm">
-        <h2 className="text-3xl font-bold leading-tight text-text-main mb-3">
+        <h2 className="text-3xl font-bold leading-tight text-text-main dark:text-white mb-3">
           Что у вас на кухне?
         </h2>
-        <p className="text-text-secondary text-base leading-relaxed">
+        <p className="text-text-secondary dark:text-gray-400 text-base leading-relaxed">
           Наведите камеру на ингредиенты или блюдо, чтобы найти рецепты.
         </p>
       </div>
 
       {/* Telegram WebView Warning */}
       {isTelegramWebView && (
-        <div className="w-full max-w-md mb-6 bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 animate-fade-in-up">
+        <div className="w-full max-w-md mb-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-700 rounded-2xl p-4 animate-fade-in-up">
           <div className="flex items-start gap-3">
             <AlertCircle className="text-amber-600 flex-shrink-0 mt-0.5" size={24} />
             <div className="flex-1">
-              <h3 className="font-bold text-amber-900 mb-1">Доступ к камере ограничен</h3>
-              <p className="text-sm text-amber-800 mb-3">
+              <h3 className="font-bold text-amber-900 dark:text-amber-200 mb-1">Доступ к камере ограничен</h3>
+              <p className="text-sm text-amber-800 dark:text-amber-300 mb-3">
                 Telegram не позволяет использовать камеру. Откройте сайт в браузере (Safari, Chrome) для полного доступа.
               </p>
               <button
@@ -207,7 +253,6 @@ const PhotoAnalysis: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        {/* Camera specific input */}
         <input
           ref={cameraInputRef}
           type="file"
@@ -223,43 +268,76 @@ const PhotoAnalysis: React.FC = () => {
       {!image && (
         <div className="flex items-center gap-16 mb-12">
           <button onClick={() => cameraInputRef.current?.click()} className="flex flex-col items-center gap-2 group w-20">
-            <div className="size-16 bg-cyan-soft/20 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
-              <Camera size={28} className="text-text-main" />
+            <div className="size-16 bg-cyan-soft/20 dark:bg-cyan-soft/10 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
+              <Camera size={28} className="text-text-main dark:text-white" />
             </div>
-            <span className="text-sm font-medium text-text-main">Камера</span>
+            <span className="text-sm font-medium text-text-main dark:text-white">Камера</span>
           </button>
 
           <button onClick={() => galleryInputRef.current?.click()} className="flex flex-col items-center gap-2 group w-20">
-            <div className="size-16 bg-cyan-soft/20 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
-              <ImageIcon size={28} className="text-text-main" />
+            <div className="size-16 bg-cyan-soft/20 dark:bg-cyan-soft/10 rounded-full flex items-center justify-center shadow-sm group-hover:bg-cyan-soft/30 transition-colors">
+              <ImageIcon size={28} className="text-text-main dark:text-white" />
             </div>
-            <span className="text-sm font-medium text-text-main">Галерея</span>
+            <span className="text-sm font-medium text-text-main dark:text-white">Галерея</span>
           </button>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 px-4 py-3 bg-red-50 text-red-600 rounded-xl text-sm font-medium animate-fade-in-up">
+        <div className="mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium animate-fade-in-up">
           {error}
         </div>
       )}
 
-      {/* Action Button (Confirm) */}
-      {/* Removed - main button now handles analyze */}
-
-      {/* Recent Findings Placeholder */}
+      {/* Recent Findings - Now with Real Data */}
       <div className="w-full max-w-md mt-auto">
-        <h3 className="text-lg font-bold text-text-main mb-4 px-2">Ваши недавние находки</h3>
-        <div className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-cyan-soft/50 p-8 text-center bg-cyan-soft/5">
-          <div className="relative">
-            <History size={40} className="text-cyan-soft/60" />
-            {/* Overlay X or similar if needed, keeping simple for now */}
-          </div>
-          <p className="text-text-secondary text-sm font-medium">
-            Ваши сканированные фото появятся здесь
-          </p>
+        <div className="flex items-center justify-between mb-4 px-2">
+          <h3 className="text-lg font-bold text-text-main dark:text-white">Ваши недавние находки</h3>
+          {scanHistory.length > 0 && (
+            <button
+              onClick={clearHistory}
+              className="text-xs text-text-secondary hover:text-red-500 transition-colors"
+            >
+              Очистить
+            </button>
+          )}
         </div>
+
+        {scanHistory.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 rounded-3xl border-2 border-dashed border-cyan-soft/50 dark:border-gray-700 p-8 text-center bg-cyan-soft/5 dark:bg-surface-dark">
+            <History size={40} className="text-cyan-soft/60 dark:text-gray-600" />
+            <p className="text-text-secondary dark:text-gray-400 text-sm font-medium">
+              Ваши сканированные фото появятся здесь
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            {scanHistory.map((item) => (
+              <div
+                key={item.id}
+                className="relative flex-shrink-0 w-20 group"
+              >
+                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+                  <img
+                    src={item.image}
+                    alt={item.recipeName || 'Scan'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-text-secondary dark:text-gray-400 truncate text-center">
+                  {item.recipeName?.split(' ').slice(0, 2).join(' ') || 'Скан'}
+                </p>
+                <button
+                  onClick={(e) => { e.stopPropagation(); removeHistoryItem(item.id); }}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

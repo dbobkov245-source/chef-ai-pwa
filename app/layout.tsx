@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata, Viewport } from "next";
 import "./main.css";
 import AuthProvider from "../components/AuthProvider";
+import ErrorBoundary from "../components/ui/ErrorBoundary";
 
 import { Space_Grotesk } from "next/font/google";
 
@@ -72,14 +73,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="light">
+    <html lang="ru" className="light" suppressHydrationWarning>
       <head>
         {/* Service Worker Registration */}
         <script src="/sw-loader.js" defer />
       </head>
-      <body className={`${spaceGrotesk.variable} bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col`}>
+      <body className={`${spaceGrotesk.variable} bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col transition-theme`}>
         <AuthProvider>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </AuthProvider>
       </body>
     </html>

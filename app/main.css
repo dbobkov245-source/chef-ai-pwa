@@ -3,18 +3,94 @@
 @tailwind utilities;
 
 :root {
-  --background-rgb: 246, 248, 246;
+  --background-rgb: 242, 249, 245;
+  --surface-rgb: 255, 255, 255;
+  --text-main-rgb: 13, 31, 45;
+  --text-secondary-rgb: 90, 107, 124;
+}
+
+.dark {
+  --background-rgb: 16, 34, 22;
+  --surface-rgb: 24, 46, 33;
+  --text-main-rgb: 242, 249, 245;
+  --text-secondary-rgb: 163, 216, 216;
 }
 
 body {
   background-color: rgb(var(--background-rgb));
+  transition: background-color 0.3s ease;
 }
 
-/* Hide Scrollbar but keep functionality for horizontal carousels */
+/* Custom Scrollbar Hide */
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth Transitions */
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Staggered Animation */
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  animation: staggerFadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+.stagger-item:nth-child(7) { animation-delay: 0.35s; }
+.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+
+/* Safe Area for Mobile */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Dark Mode Overrides */
+.dark .bg-white {
+  background-color: rgb(var(--surface-rgb));
+}
+
+.dark .bg-background-light {
+  background-color: rgb(var(--background-rgb));
+}
+
+.dark .text-text-main {
+  color: rgb(var(--text-main-rgb));
+}
+
+.dark .text-text-secondary {
+  color: rgb(var(--text-secondary-rgb));
+}
+
+.dark .border-gray-100 {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .bg-gray-50 {
+  background-color: rgba(255, 255, 255, 0.05);
 }

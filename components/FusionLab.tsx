@@ -3,11 +3,11 @@ import { CUISINES } from '../constants';
 import { generateFusionRecipe } from '../services/geminiService';
 import { Recipe } from '../types';
 import RecipeCard from './RecipeCard';
-import { 
-  ArrowLeft, 
-  ChevronDown, 
-  ArrowRightLeft, 
-  Sparkles 
+import {
+  ArrowLeft,
+  ChevronDown,
+  ArrowRightLeft,
+  Sparkles
 } from 'lucide-react';
 
 const FusionLab: React.FC = () => {
@@ -39,14 +39,14 @@ const FusionLab: React.FC = () => {
   if (recipe) {
     return (
       <div className="animate-fade-in-up pb-24">
-         <button 
-           onClick={() => setRecipe(null)}
-           className="mb-4 flex items-center gap-2 text-text-secondary hover:text-text-main font-medium"
-         >
-           <ArrowLeft size={20} />
-           Назад к лаборатории
-         </button>
-         <RecipeCard recipe={recipe} />
+        <button
+          onClick={() => setRecipe(null)}
+          className="mb-4 flex items-center gap-2 text-text-secondary hover:text-text-main font-medium"
+        >
+          <ArrowLeft size={20} />
+          Назад к лаборатории
+        </button>
+        <RecipeCard recipe={recipe} />
       </div>
     );
   }
@@ -54,14 +54,14 @@ const FusionLab: React.FC = () => {
   return (
     <div className="animate-fade-in-up pb-24 max-w-md mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-text-main mb-2">Миксуй вкусы</h2>
-        <p className="text-text-secondary">Выберите две кухни для создания уникального рецепта.</p>
+        <h2 className="text-2xl font-bold text-text-main dark:text-white mb-2">Миксуй вкусы</h2>
+        <p className="text-text-secondary dark:text-gray-400">Выберите две кухни для создания уникального рецепта.</p>
       </div>
 
-      <div className="space-y-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+      <div className="space-y-6 bg-white dark:bg-surface-dark p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
         {/* Cuisine 1 */}
         <div className="space-y-2">
-          <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+          <label className="text-sm font-bold text-text-main dark:text-white ml-1 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary"></span>
             Основная кухня
           </label>
@@ -69,7 +69,7 @@ const FusionLab: React.FC = () => {
             <select
               value={cuisine1}
               onChange={(e) => setCuisine1(e.target.value)}
-              className="w-full appearance-none bg-background-light border-0 rounded-xl px-4 py-4 pr-10 text-text-main font-medium focus:ring-2 focus:ring-primary focus:outline-none transition-shadow cursor-pointer"
+              className="w-full appearance-none bg-background-light dark:bg-background-dark border-0 rounded-xl px-4 py-4 pr-10 text-text-main dark:text-white font-medium focus:ring-2 focus:ring-primary focus:outline-none transition-shadow cursor-pointer"
             >
               {CUISINES.map((c) => (
                 <option key={`c1-${c.value}`} value={c.value}>{c.label}</option>
@@ -90,15 +90,15 @@ const FusionLab: React.FC = () => {
 
         {/* Cuisine 2 */}
         <div className="space-y-2">
-          <label className="text-sm font-bold text-text-main ml-1 flex items-center gap-2">
+          <label className="text-sm font-bold text-text-main dark:text-white ml-1 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-secondary"></span>
             Дополнительная кухня
           </label>
           <div className="relative">
-             <select
+            <select
               value={cuisine2}
               onChange={(e) => setCuisine2(e.target.value)}
-              className="w-full appearance-none bg-background-light border-0 rounded-xl px-4 py-4 pr-10 text-text-main font-medium focus:ring-2 focus:ring-primary focus:outline-none transition-shadow cursor-pointer"
+              className="w-full appearance-none bg-background-light dark:bg-background-dark border-0 rounded-xl px-4 py-4 pr-10 text-text-main dark:text-white font-medium focus:ring-2 focus:ring-primary focus:outline-none transition-shadow cursor-pointer"
             >
               {CUISINES.map((c) => (
                 <option key={`c2-${c.value}`} value={c.value}>{c.label}</option>
@@ -118,13 +118,13 @@ const FusionLab: React.FC = () => {
               {getCreativityLabel(creativity)}
             </span>
           </div>
-          
+
           <div className="relative h-10 flex items-center">
-            <input 
-              type="range" 
-              min="1" 
-              max="10" 
-              value={creativity} 
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={creativity}
               onChange={(e) => setCreativity(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
             />
@@ -138,17 +138,16 @@ const FusionLab: React.FC = () => {
 
       {/* Floating CTA */}
       <div className="fixed bottom-24 md:bottom-8 left-4 right-4 max-w-md mx-auto z-20">
-         <button
+        <button
           onClick={handleGenerate}
           disabled={loading}
-          className={`w-full h-14 rounded-2xl font-bold text-lg text-text-main flex items-center justify-center gap-2 shadow-xl shadow-primary/20 transition-all active:scale-95 border border-white/20 ${
-            loading 
-              ? 'bg-gray-300 cursor-not-allowed' 
-              : 'bg-primary hover:bg-primary-dark'
-          }`}
+          className={`w-full h-14 rounded-2xl font-bold text-lg text-text-main flex items-center justify-center gap-2 shadow-xl shadow-primary/20 transition-all active:scale-95 border border-white/20 ${loading
+            ? 'bg-gray-300 cursor-not-allowed'
+            : 'bg-primary hover:bg-primary-dark'
+            }`}
         >
           {loading ? (
-             <div className="w-6 h-6 border-3 border-text-main border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-6 h-6 border-3 border-text-main border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <>
               <Sparkles size={24} />
