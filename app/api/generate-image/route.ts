@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const IMAGEN_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict';
+// Use Gemini 2.0 Flash experimental for image generation
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
 export async function POST(req: NextRequest) {
     try {
@@ -16,59 +17,74 @@ export async function POST(req: NextRequest) {
         }
 
         // Create a detailed prompt for food photography
-        const prompt = `Professional food photography of ${dishName}. ${description || ''} 
-    Styled beautifully on a white plate, top-down view, soft natural lighting, 
-    garnished elegantly, appetizing presentation, high-end restaurant quality, 
-    4K food photography, delicious looking, macro lens, shallow depth of field`;
+        const prompt = `Generate a beautiful, appetizing photograph of "${dishName}". 
+    ${description ? `Description: ${description}.` : ''} 
+    Style: Professional food photography, top-down view on a white ceramic plate, 
+    soft natural lighting from the side, shallow depth of field, 
+    garnished elegantly with fresh herbs, high-end restaurant presentation, 
+    vibrant colors, steam rising if it's a hot dish, 4K quality.
+    Make it look absolutely delicious and Instagram-worthy.`;
 
-        const response = await fetch(`${IMAGEN_API_URL}?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                instances: [{ prompt }],
-                parameters: {
-                    sampleCount: 1,
-                    aspectRatio: "1:1",
-                    personGeneration: "dont_allow"
+        // Try multiple models for image generation
+        const models = [
+            'gemini-2.0-flash-exp',
+            'gemini-2.0-flash-preview-image-generation'
+        ];
+
+        for (const model of models) {
+            try {
+                console.log(`Trying image generation with model: ${model}`);
+
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: prompt }]
+                            }],
+                            generationConfig: {
+                                responseModalities: ["TEXT", "IMAGE"]
+                            }
+                        }),
+                    }
+                );
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error(`Model ${model} error:`, errorData);
+                    continue; // Try next model
                 }
-            }),
-        });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('Imagen API error:', errorData);
+                const data = await response.json();
 
-            // If Imagen fails, return a placeholder
-            return NextResponse.json({
-                success: false,
-                placeholder: true,
-                message: "Image generation unavailable, using placeholder"
-            });
+                // Extract image from response
+                if (data.candidates && data.candidates[0]?.content?.parts) {
+                    for (const part of data.candidates[0].content.parts) {
+                        if (part.inlineData?.data) {
+                            const mimeType = part.inlineData.mimeType || 'image/png';
+                            return NextResponse.json({
+                                success: true,
+                                image: `data:${mimeType};base64,${part.inlineData.data}`
+                            });
+                        }
+                    }
+                }
+            } catch (modelError) {
+                console.error(`Model ${model} failed:`, modelError);
+                continue;
+            }
         }
 
-        const data = await response.json();
-
-        if (data.predictions && data.predictions[0]?.bytesBase64Encoded) {
-            return NextResponse.json({
-                success: true,
-                image: `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`
-            });
-        }
-
-        // Fallback for different response formats
-        if (data.generatedImages && data.generatedImages[0]?.image?.imageBytes) {
-            return NextResponse.json({
-                success: true,
-                image: `data:image/png;base64,${data.generatedImages[0].image.imageBytes}`
-            });
-        }
-
+        // If all models fail, return placeholder message
+        console.log('All image generation models failed, returning placeholder');
         return NextResponse.json({
             success: false,
             placeholder: true,
-            message: "No image generated"
+            message: "Генерация изображений временно недоступна"
         });
 
     } catch (error) {
