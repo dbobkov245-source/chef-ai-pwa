@@ -201,13 +201,23 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isSavedView = false, on
 
       {/* Generated Image */}
       {generatedImage && (
-        <div className="relative w-full aspect-square max-h-64 overflow-hidden">
+        <div className="relative w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img
             src={generatedImage}
             alt={editedRecipe.title}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              // Hide broken image
+              (e.target as HTMLImageElement).style.display = 'none';
+              setImageError(true);
+              setGeneratedImage(null);
+            }}
+            onLoad={(e) => {
+              // Show image when loaded
+              (e.target as HTMLImageElement).style.display = 'block';
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
       )}
 
