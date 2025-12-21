@@ -74,8 +74,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isSavedView = false, on
 
       const data = await response.json();
 
-      if (data.success && data.image) {
-        setGeneratedImage(data.image);
+      if (data.success && (data.image || data.imageUrl)) {
+        setGeneratedImage(data.image || data.imageUrl);
       } else {
         setImageError(true);
       }
@@ -299,10 +299,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isSavedView = false, on
           onClick={generateImage}
           disabled={imageLoading || !!generatedImage}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all ${generatedImage
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-              : imageLoading
-                ? 'bg-gray-100 dark:bg-gray-700 text-text-secondary cursor-wait'
-                : 'bg-cyan-soft/30 dark:bg-cyan-soft/10 text-text-main dark:text-white hover:bg-cyan-soft/50'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            : imageLoading
+              ? 'bg-gray-100 dark:bg-gray-700 text-text-secondary cursor-wait'
+              : 'bg-cyan-soft/30 dark:bg-cyan-soft/10 text-text-main dark:text-white hover:bg-cyan-soft/50'
             }`}
         >
           {imageLoading ? (
@@ -332,8 +332,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, isSavedView = false, on
         <button
           onClick={addToShoppingList}
           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium text-sm transition-all ${addedToList
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-              : 'bg-primary/20 text-text-main dark:text-white hover:bg-primary/30'
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            : 'bg-primary/20 text-text-main dark:text-white hover:bg-primary/30'
             }`}
         >
           {addedToList ? (
