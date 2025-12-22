@@ -4,12 +4,18 @@ import "./main.css";
 import AuthProvider from "../components/AuthProvider";
 import ErrorBoundary from "../components/ui/ErrorBoundary";
 
-import { Space_Grotesk } from "next/font/google";
+import { Space_Grotesk, Sen } from "next/font/google";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
   variable: "--font-space-grotesk",
+});
+
+const sen = Sen({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-sen",
 });
 
 export const metadata: Metadata = {
@@ -78,7 +84,7 @@ export default function RootLayout({
         {/* Service Worker Registration */}
         <script src="/sw-loader.js" defer />
       </head>
-      <body className={`${spaceGrotesk.variable} bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col transition-theme`}>
+      <body className={`${spaceGrotesk.variable} ${sen.variable} bg-background-light text-text-main antialiased font-sans min-h-screen flex flex-col transition-theme`}>
         <AuthProvider>
           <ErrorBoundary>
             {children}

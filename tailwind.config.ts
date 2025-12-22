@@ -14,16 +14,16 @@ const config: Config = {
         primary: "#13ec5b", // Neon Green
         "primary-dark": "#0fb845",
         background: {
-          light: "#F2F9F5", // Light Mint (Updated)
-          dark: "#102216",  // Deep Green/Black
+          light: "#FFFFFF", // Figma "White" for clean look
+          dark: "#121223",  // Figma Dark Blue/Black
         },
         surface: {
-          light: "#FFFFFF",
-          dark: "#182E21",
+          light: "#F7F8F9", // Light Gray surface
+          dark: "#1F1F30",
         },
         text: {
-          main: "#0D1F2D", // Dark Blue/Green (Updated)
-          secondary: "#5A6B7C", // Muted Blue/Gray
+          main: "#111A2C", // Figma Dark Navy
+          secondary: "#525C67", // Figma Slate Gray
         },
         // Accent for scanner circle
         cyan: {
@@ -32,8 +32,8 @@ const config: Config = {
         }
       },
       fontFamily: {
-        // Google Font: Space Grotesk
-        sans: ["var(--font-space-grotesk)", "sans-serif"],
+        // Google Font: Sen as primary, Space Grotesk as accent/display if needed
+        sans: ["var(--font-sen)", "sans-serif"],
         display: ["var(--font-space-grotesk)", "sans-serif"],
       },
       borderRadius: {
